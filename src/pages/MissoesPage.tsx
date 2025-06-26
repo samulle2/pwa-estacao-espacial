@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import MissaoForm from '../components/MissaoForm';
+import { useAuth } from '../context/AuthContext'; // Importe o hook useAuth
 
 const MissoesPage: React.FC = () => {
   const [missoes, setMissoes] = useState<any[]>([]);
   const [editing, setEditing] = useState<any | null>(null);
+  const { usuario } = useAuth(); // Obtenha o usuário do contexto
 
   const fetchMissoes = async () => {
     try {
@@ -84,7 +86,11 @@ const MissoesPage: React.FC = () => {
             {m.nome} - {m.descricao} <br />
             {new Date(m.data_inicio).toLocaleDateString()} → {new Date(m.data_fim).toLocaleDateString()}
             <button onClick={() => setEditing(m)}>Editar</button>
-            <button onClick={() => handleDelete(m.id)}>Excluir</button>
+            
+            {/* Mostrar apenas para admins */}
+            {usuario?.isAdmin && (
+              <button onClick={() => handleDelete(m.id)}>Excluir</button>
+            )}
           </li>
         ))}
       </ul>

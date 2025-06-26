@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import ParticipacaoForm from '../components/ParticipacaoForm';
+import { useAuth } from '../context/AuthContext'; // Importe o hook useAuth
 
 const ParticipacoesPage: React.FC = () => {
   const [participacoes, setParticipacoes] = useState<any[]>([]);
+  const { usuario } = useAuth(); // Obtenha o usuário do contexto
 
   const fetchParticipacoes = async () => {
     try {
@@ -52,7 +54,11 @@ const ParticipacoesPage: React.FC = () => {
         {participacoes.map((p: any) => (
           <li key={p.id}>
             {p.astronauta?.nome} participa da missão "{p.missao?.nome}"
-            <button onClick={() => handleDelete(p.id)}>Remover</button>
+            
+            {/* Mostrar apenas para admins */}
+            {usuario?.isAdmin && (
+              <button onClick={() => handleDelete(p.id)}>Remover</button>
+            )}
           </li>
         ))}
       </ul>

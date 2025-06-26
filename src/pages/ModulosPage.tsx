@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import ModuloForm from '../components/ModuloForm';
+import { useAuth } from '../context/AuthContext'; // Importe o hook useAuth
 
 const ModulosPage: React.FC = () => {
   const [modulos, setModulos] = useState<any[]>([]);
   const [editing, setEditing] = useState<any | null>(null);
+  const { usuario } = useAuth(); // Obtenha o usuário do contexto
 
   const fetchModulos = async () => {
     try {
@@ -65,7 +67,11 @@ const ModulosPage: React.FC = () => {
           <li key={m.id}>
             {m.nome} - {m.funcao} (Missão: {m.missao?.nome || 'sem vínculo'})
             <button onClick={() => setEditing(m)}>Editar</button>
-            <button onClick={() => handleDelete(m.id)}>Excluir</button>
+            
+            {/* Mostrar apenas para admins */}
+            {usuario?.isAdmin && (
+              <button onClick={() => handleDelete(m.id)}>Excluir</button>
+            )}
           </li>
         ))}
       </ul>

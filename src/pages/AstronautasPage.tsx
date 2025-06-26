@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import AstronautaForm from '../components/AstronautaForm';
+import { useAuth } from '../context/AuthContext'; // Importe o hook useAuth
 
 const AstronautasPage: React.FC = () => {
   const [astronautas, setAstronautas] = useState<any[]>([]);
   const [editing, setEditing] = useState<any | null>(null);
+  const { usuario } = useAuth(); // Obtenha o usuário do contexto
 
   const fetchAstronautas = async () => {
     try {
@@ -71,7 +73,11 @@ const AstronautasPage: React.FC = () => {
           <li key={a.id}>
             {a.nome} - {a.especialidade} - {new Date(a.data_nascimento).toLocaleDateString()}
             <button onClick={() => setEditing(a)}>Editar</button>
-            <button onClick={() => handleDelete(a.id)}>Excluir</button>
+            
+            {/* Mostrar apenas para admins */}
+            {usuario?.isAdmin && (
+              <button onClick={() => handleDelete(a.id)}>Excluir</button>
+            )}
           </li>
         ))}
       </ul>
