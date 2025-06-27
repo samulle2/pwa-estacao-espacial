@@ -100,7 +100,6 @@ const LoginPage: React.FC = () => {
               Entrar
             </Button>
             
-            {/* Solução definitiva sem Grid */}
             <Box sx={{
               display: 'flex',
               justifyContent: 'space-between',

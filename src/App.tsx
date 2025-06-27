@@ -17,7 +17,7 @@ const App: React.FC = () => {
     <AuthProvider>
       <BrowserRouter>
         <MenuBar />
-        <Box sx={{ marginTop: '64px', padding: '20px' }}> {/* Adicione esta Box com marginTop */}
+        <Box sx={{ marginTop: '64px', padding: '20px' }}> 
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registro" element={<RegistroPage />} />
@@ -31,7 +31,6 @@ const App: React.FC = () => {
               <Route path="/perfil" element={<PerfilPage />} />
             </Route>
             
-            {/* Redirecionar para login se não encontrado */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Box>
