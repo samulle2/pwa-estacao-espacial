@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000', 
+  baseURL: 'https://api-estacao-espacial-yhn3.onrender.com',
 });
 
 api.interceptors.request.use(config => {
