@@ -35,6 +35,6 @@
     "workbox-strategies": "^7.3.0"
   },
   "resolutions": {
-  "date-fns": "^4.1.0"
-}
+    "date-fns": "^4.1.0"
+  }
 }
