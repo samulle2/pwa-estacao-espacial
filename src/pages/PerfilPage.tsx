@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { 
+  Box, 
+  Typography, 
+  TextField, 
+  Button, 
+  Container,
+  Paper
+} from '@mui/material';
 
 const PerfilPage: React.FC = () => {
   const { usuario, logout } = useAuth();
@@ -20,13 +28,6 @@ const PerfilPage: React.FC = () => {
     try {
       await api.put('/usuario/perfil', { nome, email });
       setMensagem('Perfil atualizado com sucesso!');
-      // Recarregar dados do usuário
-      const res = await api.get('/usuario/perfil');
-      if (res.data) {
-        // Atualizar contexto (seria melhor implementar refresh no contexto)
-        setNome(res.data.nome);
-        setEmail(res.data.email);
-      }
     } catch (error) {
       setMensagem('Erro ao atualizar perfil.');
       console.error(error);
@@ -34,37 +35,61 @@ const PerfilPage: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-      <h2>Perfil do Usuário</h2>
-      {mensagem && <p style={{ color: 'green' }}>{mensagem}</p>}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '15px' }}>
-          <label>Nome:</label>
-          <input
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px' }}
-          />
-        </div>
-        <div style={{ marginBottom: '15px' }}>
-          <label>E-mail:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px' }}
-          />
-        </div>
-        <button type="submit" style={{ padding: '10px 20px', marginRight: '10px' }}>
-          Atualizar
-        </button>
-        <button onClick={logout} style={{ padding: '10px 20px', background: '#f44336' }}>
-          Sair
-        </button>
-      </form>
-    </div>
+    <Container maxWidth="sm">
+      <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Paper sx={{ p: 3, width: '100%' }}>
+          <Typography variant="h4" gutterBottom sx={{ textAlign: 'center' }}>
+            Perfil do Usuário
+          </Typography>
+          
+          {mensagem && (
+            <Typography 
+              color={mensagem.includes('sucesso') ? "success.main" : "error.main"} 
+              sx={{ mb: 2, textAlign: 'center' }}
+            >
+              {mensagem}
+            </Typography>
+          )}
+          
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Nome"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="E-mail"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ width: '48%' }}
+              >
+                Atualizar
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                sx={{ width: '48%' }}
+                onClick={logout}
+              >
+                Sair
+              </Button>
+            </Box>
+          </Box>
+        </Paper>
+      </Box>
+    </Container>
   );
 };
 

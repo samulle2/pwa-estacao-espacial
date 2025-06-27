@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import MissaoForm from '../components/MissaoForm';
-import { useAuth } from '../context/AuthContext'; // Importe o hook useAuth
+import { useAuth } from '../context/AuthContext';
+import { 
+  Box, 
+  Typography, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  ListItemSecondaryAction, 
+  IconButton,
+  Paper
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const MissoesPage: React.FC = () => {
   const [missoes, setMissoes] = useState<any[]>([]);
   const [editing, setEditing] = useState<any | null>(null);
-  const { usuario } = useAuth(); // Obtenha o usuário do contexto
+  const { usuario } = useAuth();
 
   const fetchMissoes = async () => {
     try {
@@ -41,25 +53,6 @@ const MissoesPage: React.FC = () => {
   };
 
   const handleSave = async (dados: any) => {
-    if (!dados.nome || !dados.descricao || !dados.data_inicio || !dados.data_fim) {
-      alert('Preencha todos os campos!');
-      return;
-    }
-
-    const inicio = new Date(dados.data_inicio);
-    const fim = new Date(dados.data_fim);
-
-    if (inicio > fim) {
-      alert('Data de início não pode ser posterior à data de fim.');
-      return;
-    }
-
-    const anos = [inicio.getFullYear(), fim.getFullYear()];
-    if (anos.some(a => a < 1900 || a > 2100)) {
-      alert('As datas devem estar entre os anos 1900 e 2100.');
-      return;
-    }
-
     try {
       if (editing) {
         await api.put(`/missoes/${editing.id}`, dados);
@@ -77,24 +70,50 @@ const MissoesPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Missões</h2>
-      <MissaoForm onSave={handleSave} initialData={editing} />
-      <ul>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Missões
+      </Typography>
+      
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          {editing ? 'Editar Missão' : 'Adicionar Nova Missão'}
+        </Typography>
+        <MissaoForm onSave={handleSave} initialData={editing} />
+      </Paper>
+      
+      <Typography variant="h6" gutterBottom>
+        Lista de Missões
+      </Typography>
+      <List>
         {missoes.map((m) => (
-          <li key={m.id}>
-            {m.nome} - {m.descricao} <br />
-            {new Date(m.data_inicio).toLocaleDateString()} → {new Date(m.data_fim).toLocaleDateString()}
-            <button onClick={() => setEditing(m)}>Editar</button>
-            
-            {/* Mostrar apenas para admins */}
-            {usuario?.isAdmin && (
-              <button onClick={() => handleDelete(m.id)}>Excluir</button>
-            )}
-          </li>
+          <ListItem key={m.id} divider>
+            <ListItemText 
+              primary={m.nome} 
+              secondary={
+                <div>
+                  <div>{m.descricao}</div>
+                  <div>
+                    {new Date(m.data_inicio).toLocaleDateString('pt-BR')} → 
+                    {new Date(m.data_fim).toLocaleDateString('pt-BR')}
+                  </div>
+                </div>
+              } 
+            />
+            <ListItemSecondaryAction>
+              <IconButton edge="end" onClick={() => setEditing(m)}>
+                <EditIcon />
+              </IconButton>
+              {usuario?.isAdmin && (
+                <IconButton edge="end" onClick={() => handleDelete(m.id)}>
+                  <DeleteIcon color="error" />
+                </IconButton>
+              )}
+            </ListItemSecondaryAction>
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Box>
   );
 };
 

@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import AstronautaForm from '../components/AstronautaForm';
-import { useAuth } from '../context/AuthContext'; // Importe o hook useAuth
+import { useAuth } from '../context/AuthContext';
+import { 
+  Box, 
+  Typography, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  ListItemSecondaryAction, 
+  IconButton,
+  Paper
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const AstronautasPage: React.FC = () => {
   const [astronautas, setAstronautas] = useState<any[]>([]);
   const [editing, setEditing] = useState<any | null>(null);
-  const { usuario } = useAuth(); // Obtenha o usuário do contexto
+  const { usuario } = useAuth();
 
   const fetchAstronautas = async () => {
     try {
@@ -37,17 +49,6 @@ const AstronautasPage: React.FC = () => {
   };
 
   const handleSave = async (dados: any) => {
-    if (!dados.nome || !dados.especialidade || !dados.data_nascimento) {
-      alert('Preencha todos os campos!');
-      return;
-    }
-
-    const ano = new Date(dados.data_nascimento).getFullYear();
-    if (ano < 1900 || ano > 2100) {
-      alert('Ano de nascimento inválido. Use uma data entre 1900 e 2100.');
-      return;
-    }
-
     try {
       if (editing) {
         await api.put(`/astronautas/${editing.id}`, dados);
@@ -65,23 +66,42 @@ const AstronautasPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Astronautas</h2>
-      <AstronautaForm onSave={handleSave} initialData={editing} />
-      <ul>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Astronautas
+      </Typography>
+      
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          {editing ? 'Editar Astronauta' : 'Adicionar Novo Astronauta'}
+        </Typography>
+        <AstronautaForm onSave={handleSave} initialData={editing} />
+      </Paper>
+      
+      <Typography variant="h6" gutterBottom>
+        Lista de Astronautas
+      </Typography>
+      <List>
         {astronautas.map((a) => (
-          <li key={a.id}>
-            {a.nome} - {a.especialidade} - {new Date(a.data_nascimento).toLocaleDateString()}
-            <button onClick={() => setEditing(a)}>Editar</button>
-            
-            {/* Mostrar apenas para admins */}
-            {usuario?.isAdmin && (
-              <button onClick={() => handleDelete(a.id)}>Excluir</button>
-            )}
-          </li>
+          <ListItem key={a.id} divider>
+            <ListItemText 
+              primary={a.nome} 
+              secondary={`${a.especialidade} - ${new Date(a.data_nascimento).toLocaleDateString('pt-BR')}`} 
+            />
+            <ListItemSecondaryAction>
+              <IconButton edge="end" onClick={() => setEditing(a)}>
+                <EditIcon />
+              </IconButton>
+              {usuario?.isAdmin && (
+                <IconButton edge="end" onClick={() => handleDelete(a.id)}>
+                  <DeleteIcon color="error" />
+                </IconButton>
+              )}
+            </ListItemSecondaryAction>
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Box>
   );
 };
 

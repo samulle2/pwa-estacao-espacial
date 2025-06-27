@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Button, Box, Stack, MenuItem, InputLabel, FormControl, Select } from '@mui/material';
 import api from '../services/api';
 
 interface Props {
@@ -46,23 +47,47 @@ const ParticipacaoForm: React.FC<Props> = ({ onSave }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <select value={astronautaId} onChange={e => setAstronautaId(e.target.value)}>
-        <option value="">Selecione um astronauta</option>
-        {astronautas.map((a: any) => (
-          <option key={a.id} value={a.id}>{a.nome}</option>
-        ))}
-      </select>
-
-      <select value={missaoId} onChange={e => setMissaoId(e.target.value)}>
-        <option value="">Selecione uma missão</option>
-        {missoes.map((m: any) => (
-          <option key={m.id} value={m.id}>{m.nome}</option>
-        ))}
-      </select>
-
-      <button type="submit">Vincular</button>
-    </form>
+    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+      <Stack spacing={2}>
+        <Stack direction="row" spacing={2}>
+          <FormControl fullWidth>
+            <InputLabel id="astronauta-label">Astronauta</InputLabel>
+            <Select
+              labelId="astronauta-label"
+              value={astronautaId}
+              label="Astronauta"
+              onChange={e => setAstronautaId(e.target.value)}
+              required
+            >
+              <MenuItem value="">Selecione um astronauta</MenuItem>
+              {astronautas.map((a: any) => (
+                <MenuItem key={a.id} value={a.id}>{a.nome}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          
+          <FormControl fullWidth>
+            <InputLabel id="missao-label">Missão</InputLabel>
+            <Select
+              labelId="missao-label"
+              value={missaoId}
+              label="Missão"
+              onChange={e => setMissaoId(e.target.value)}
+              required
+            >
+              <MenuItem value="">Selecione uma missão</MenuItem>
+              {missoes.map((m: any) => (
+                <MenuItem key={m.id} value={m.id}>{m.nome}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Stack>
+        
+        <Button type="submit" variant="contained" color="primary" fullWidth>
+          Vincular
+        </Button>
+      </Stack>
+    </Box>
   );
 };
 

@@ -1,4 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { TextField, Button, Box, Stack } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { ptBR } from 'date-fns/locale';
 
 interface Props {
   onSave: (missao: any) => void;
@@ -6,10 +11,14 @@ interface Props {
 }
 
 const MissaoForm: React.FC<Props> = ({ onSave, initialData }) => {
-  const [nome, setNome] = useState(initialData?.nome || '');
-  const [descricao, setDescricao] = useState(initialData?.descricao || '');
-  const [dataInicio, setDataInicio] = useState(initialData?.data_inicio?.substring(0, 10) || '');
-  const [dataFim, setDataFim] = useState(initialData?.data_fim?.substring(0, 10) || '');
+  const [nome, setNome] = React.useState(initialData?.nome || '');
+  const [descricao, setDescricao] = React.useState(initialData?.descricao || '');
+  const [dataInicio, setDataInicio] = React.useState<Date | null>(
+    initialData?.data_inicio ? new Date(initialData.data_inicio) : null
+  );
+  const [dataFim, setDataFim] = React.useState<Date | null>(
+    initialData?.data_fim ? new Date(initialData.data_fim) : null
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,16 +28,13 @@ const MissaoForm: React.FC<Props> = ({ onSave, initialData }) => {
       return;
     }
 
-    const inicio = new Date(dataInicio);
-    const fim = new Date(dataFim);
-
-    if (inicio > fim) {
+    if (dataInicio > dataFim) {
       alert('Data de início não pode ser maior que a data de fim.');
       return;
     }
 
-    const anoInicio = inicio.getFullYear();
-    const anoFim = fim.getFullYear();
+    const anoInicio = dataInicio.getFullYear();
+    const anoFim = dataFim.getFullYear();
     if (anoInicio < 1900 || anoInicio > 2100 || anoFim < 1900 || anoFim > 2100) {
       alert('As datas devem estar entre 1900 e 2100.');
       return;
@@ -37,19 +43,57 @@ const MissaoForm: React.FC<Props> = ({ onSave, initialData }) => {
     onSave({
       nome,
       descricao,
-      data_inicio: inicio.toISOString(),
-      data_fim: fim.toISOString(),
+      data_inicio: dataInicio.toISOString(),
+      data_fim: dataFim.toISOString(),
     });
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input value={nome} onChange={e => setNome(e.target.value)} placeholder="Nome da missão" />
-      <input value={descricao} onChange={e => setDescricao(e.target.value)} placeholder="Descrição" />
-      <input type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} />
-      <input type="date" value={dataFim} onChange={e => setDataFim(e.target.value)} />
-      <button type="submit">Salvar</button>
-    </form>
+    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+      <Stack spacing={2}>
+        <TextField
+          fullWidth
+          label="Nome da missão"
+          value={nome}
+          onChange={e => setNome(e.target.value)}
+          required
+        />
+        
+        <TextField
+          fullWidth
+          label="Descrição"
+          value={descricao}
+          onChange={e => setDescricao(e.target.value)}
+          required
+          multiline
+          rows={4}
+        />
+        
+        <Stack direction="row" spacing={2}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
+            <DatePicker
+              label="Data de início"
+              value={dataInicio}
+              onChange={(newValue) => setDataInicio(newValue)}
+              slotProps={{ textField: { fullWidth: true, required: true } }}
+            />
+          </LocalizationProvider>
+          
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
+            <DatePicker
+              label="Data de fim"
+              value={dataFim}
+              onChange={(newValue) => setDataFim(newValue)}
+              slotProps={{ textField: { fullWidth: true, required: true } }}
+            />
+          </LocalizationProvider>
+        </Stack>
+        
+        <Button type="submit" variant="contained" color="primary" fullWidth>
+          Salvar
+        </Button>
+      </Stack>
+    </Box>
   );
 };
 

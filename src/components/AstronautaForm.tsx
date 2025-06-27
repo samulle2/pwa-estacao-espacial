@@ -1,4 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { TextField, Button, Box, Stack } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { ptBR } from 'date-fns/locale';
 
 interface Props {
   onSave: (astronauta: any) => void;
@@ -6,10 +11,10 @@ interface Props {
 }
 
 const AstronautaForm: React.FC<Props> = ({ onSave, initialData }) => {
-  const [nome, setNome] = useState(initialData?.nome || '');
-  const [especialidade, setEspecialidade] = useState(initialData?.especialidade || '');
-  const [dataNascimento, setDataNascimento] = useState(
-    initialData?.data_nascimento?.substring(0, 10) || ''
+  const [nome, setNome] = React.useState(initialData?.nome || '');
+  const [especialidade, setEspecialidade] = React.useState(initialData?.especialidade || '');
+  const [dataNascimento, setDataNascimento] = React.useState<Date | null>(
+    initialData?.data_nascimento ? new Date(initialData.data_nascimento) : null
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -20,8 +25,7 @@ const AstronautaForm: React.FC<Props> = ({ onSave, initialData }) => {
       return;
     }
 
-    const data = new Date(dataNascimento);
-    const ano = data.getFullYear();
+    const ano = dataNascimento.getFullYear();
     if (ano < 1900 || ano > 2100) {
       alert('Ano de nascimento inválido. Escolha entre 1900 e 2100.');
       return;
@@ -30,22 +34,44 @@ const AstronautaForm: React.FC<Props> = ({ onSave, initialData }) => {
     onSave({
       nome,
       especialidade,
-      data_nascimento: data.toISOString(),
+      data_nascimento: dataNascimento.toISOString(),
     });
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input value={nome} onChange={e => setNome(e.target.value)} placeholder="Nome" />
-      <input value={especialidade} onChange={e => setEspecialidade(e.target.value)} placeholder="Especialidade" />
-      <input
-        type="date"
-        value={dataNascimento}
-        onChange={e => setDataNascimento(e.target.value)}
-        placeholder="Data de nascimento"
-      />
-      <button type="submit">Salvar</button>
-    </form>
+    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+      <Stack spacing={2}>
+        <Stack direction="row" spacing={2}>
+          <TextField
+            fullWidth
+            label="Nome"
+            value={nome}
+            onChange={e => setNome(e.target.value)}
+            required
+          />
+          <TextField
+            fullWidth
+            label="Especialidade"
+            value={especialidade}
+            onChange={e => setEspecialidade(e.target.value)}
+            required
+          />
+        </Stack>
+        
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
+          <DatePicker
+            label="Data de nascimento"
+            value={dataNascimento}
+            onChange={(newValue) => setDataNascimento(newValue)}
+            slotProps={{ textField: { fullWidth: true, required: true } }}
+          />
+        </LocalizationProvider>
+        
+        <Button type="submit" variant="contained" color="primary" fullWidth>
+          Salvar
+        </Button>
+      </Stack>
+    </Box>
   );
 };
 

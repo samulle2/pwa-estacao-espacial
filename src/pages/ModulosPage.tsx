@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import ModuloForm from '../components/ModuloForm';
-import { useAuth } from '../context/AuthContext'; // Importe o hook useAuth
+import { useAuth } from '../context/AuthContext';
+import { 
+  Box, 
+  Typography, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  ListItemSecondaryAction, 
+  IconButton,
+  Paper
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const ModulosPage: React.FC = () => {
   const [modulos, setModulos] = useState<any[]>([]);
   const [editing, setEditing] = useState<any | null>(null);
-  const { usuario } = useAuth(); // Obtenha o usuário do contexto
+  const { usuario } = useAuth();
 
   const fetchModulos = async () => {
     try {
@@ -37,11 +49,6 @@ const ModulosPage: React.FC = () => {
   };
 
   const handleSave = async (dados: any) => {
-    if (!dados.nome || !dados.funcao || !dados.missao_id) {
-      alert('Preencha todos os campos!');
-      return;
-    }
-
     try {
       if (editing) {
         await api.put(`/modulos/${editing.id}`, dados);
@@ -59,23 +66,42 @@ const ModulosPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Módulos</h2>
-      <ModuloForm onSave={handleSave} initialData={editing} />
-      <ul>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Módulos
+      </Typography>
+      
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          {editing ? 'Editar Módulo' : 'Adicionar Novo Módulo'}
+        </Typography>
+        <ModuloForm onSave={handleSave} initialData={editing} />
+      </Paper>
+      
+      <Typography variant="h6" gutterBottom>
+        Lista de Módulos
+      </Typography>
+      <List>
         {modulos.map((m) => (
-          <li key={m.id}>
-            {m.nome} - {m.funcao} (Missão: {m.missao?.nome || 'sem vínculo'})
-            <button onClick={() => setEditing(m)}>Editar</button>
-            
-            {/* Mostrar apenas para admins */}
-            {usuario?.isAdmin && (
-              <button onClick={() => handleDelete(m.id)}>Excluir</button>
-            )}
-          </li>
+          <ListItem key={m.id} divider>
+            <ListItemText 
+              primary={m.nome} 
+              secondary={`${m.funcao} - Missão: ${m.missao?.nome || 'sem vínculo'}`} 
+            />
+            <ListItemSecondaryAction>
+              <IconButton edge="end" onClick={() => setEditing(m)}>
+                <EditIcon />
+              </IconButton>
+              {usuario?.isAdmin && (
+                <IconButton edge="end" onClick={() => handleDelete(m.id)}>
+                  <DeleteIcon color="error" />
+                </IconButton>
+              )}
+            </ListItemSecondaryAction>
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Box>
   );
 };
 

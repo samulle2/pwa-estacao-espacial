@@ -1,11 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import ParticipacaoForm from '../components/ParticipacaoForm';
-import { useAuth } from '../context/AuthContext'; // Importe o hook useAuth
+import { useAuth } from '../context/AuthContext';
+import { 
+  Box, 
+  Typography, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  ListItemSecondaryAction, 
+  IconButton,
+  Paper
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const ParticipacoesPage: React.FC = () => {
   const [participacoes, setParticipacoes] = useState<any[]>([]);
-  const { usuario } = useAuth(); // Obtenha o usuário do contexto
+  const { usuario } = useAuth();
 
   const fetchParticipacoes = async () => {
     try {
@@ -47,22 +58,38 @@ const ParticipacoesPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Participações</h2>
-      <ParticipacaoForm onSave={handleSave} />
-      <ul>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Participações
+      </Typography>
+      
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Vincular Astronauta a Missão
+        </Typography>
+        <ParticipacaoForm onSave={handleSave} />
+      </Paper>
+      
+      <Typography variant="h6" gutterBottom>
+        Lista de Participações
+      </Typography>
+      <List>
         {participacoes.map((p: any) => (
-          <li key={p.id}>
-            {p.astronauta?.nome} participa da missão "{p.missao?.nome}"
-            
-            {/* Mostrar apenas para admins */}
+          <ListItem key={p.id} divider>
+            <ListItemText 
+              primary={`${p.astronauta?.nome} participa da missão "${p.missao?.nome}"`} 
+            />
             {usuario?.isAdmin && (
-              <button onClick={() => handleDelete(p.id)}>Remover</button>
+              <ListItemSecondaryAction>
+                <IconButton edge="end" onClick={() => handleDelete(p.id)}>
+                  <DeleteIcon color="error" />
+                </IconButton>
+              </ListItemSecondaryAction>
             )}
-          </li>
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Box>
   );
 };
 
